@@ -20,7 +20,9 @@ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWE
 LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY 
 OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-DataWrapper is a simple Objective-C ORM.
+DataWrapper is a simple Objective-C ORM. The only real configuration after adding it to your project is to tell DataWrapper.m what database to use:
+
+  NSString *db= @"your_database.sqlite";
 
 Note that each table's primary key needs to be 'key' not 'id' in order to avoid reserved word collisions.
 
