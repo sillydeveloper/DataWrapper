@@ -64,11 +64,14 @@ CustomerData.m:
   @implementation CustomerData
 
   @synthesize name, address, city, state;
+  
+  +(NSString) get_table
+  {
+    return @"Customers";
+  }
 
   - (id) init
   {
-	self.table_name= @"Customers";
-
 	self.fields= [[NSMutableArray alloc] init];
 	[self.fields addObject: @"name"];
 	[self.fields addObject: @"address"];
@@ -87,4 +90,4 @@ Now in your controller you can do things like:
   cd.state= @"OR";
   [cd save];
 
-  NSMutableArray *results= [cd find:@"state" withValue:"OR"];
+  NSMutableArray *results= [CustomerData find:@"state" withValue:"OR"];
