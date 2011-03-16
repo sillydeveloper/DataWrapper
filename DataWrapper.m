@@ -26,29 +26,35 @@
 
 @implementation DataWrapper
 
-@synthesize key, table_name, fields;
-NSString *db= @"your_database.sqlite";
+@synthesize key, fields;
+NSString *db= @"my_database.sqlite";
+
+/* override this to change the table name, otherwise the Classname is assumed to be the same as the table */
++(NSString *) get_table
+{
+	return NSStringFromClass([self class]);
+}
 
 -(void) load:(NSString *)byid
 {	
 	NSLog(@"finding %@", byid);
-	self= [[self find:@"id" withValue:(NSString *)byid] objectAtIndex:0]; 
+	self= [[[self class] find:@"id" withValue:(NSString *)byid] objectAtIndex:0]; 
 }
 
--(NSMutableArray*) find:(NSString*)field withValue:(NSString*)val
++(NSMutableArray*) find:(NSString*)field withValue:(NSString*)val
 {
-	NSLog(@"%@: finding %@ with value %@", self.table_name, field, val);
-	return [self find:[NSString stringWithFormat:@"select * from %@ where %@='%@'",self.table_name,field,val]];
+	NSLog(@"%@: finding %@ with value %@", [self get_table], field, val);
+	return [self find:[NSString stringWithFormat:@"select * from %@ where %@='%@'",[self get_table],field,val]];
 }
 
--(NSMutableArray*) find
++(NSMutableArray*) find
 {
-	return [self find:[NSString stringWithFormat:@"select * from %@",self.table_name]];
+	return [self find:[NSString stringWithFormat:@"select * from %@",[self get_table]]];
 }
 
--(NSMutableArray*) find:(NSString*)query
++(NSMutableArray*) find:(NSString*)query
 {
-	NSLog(@"Running %@->find(%@)", self.table_name, query);
+	NSLog(@"Running %@->find(%@)", [self get_table], query);
 	
 	NSMutableArray *results= [[NSMutableArray alloc] init];
 	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,
@@ -71,7 +77,7 @@ NSString *db= @"your_database.sqlite";
 	
 	while(sqlite3_step(compiledStatement) == SQLITE_ROW) 
 	{	
-		self= [[[self class] alloc] init]; 
+		DataWrapper *self= [[[self class] alloc] init]; 
 		
 		char *k;
 		k= (char *)sqlite3_column_text(compiledStatement, 0);
@@ -112,7 +118,7 @@ NSString *db= @"your_database.sqlite";
 
 -(void) save
 {
-	if (!(self.fields && self.table_name))
+	if (!(self.fields && [[self class] get_table]))
 		NSLog(@"WARNING: NSOBJECT WITHOUT TABLE AND DATA STRUCT!");
 		
 	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,
@@ -129,8 +135,8 @@ NSString *db= @"your_database.sqlite";
 		char *sqlStatement;
 		if (self.key != nil)
 		{	
-			NSLog(@"Updating %@ record %@", self.table_name, self.key);
-			stmt= [NSString stringWithFormat: @"update %@ set ", self.table_name];
+			NSLog(@"Updating %@ record %@", [[self class] get_table], self.key);
+			stmt= [NSString stringWithFormat: @"update %@ set ", [[self class] get_table]];
 			for (int i=0; i < [self.fields count]; i++) {
 				stmt= [stmt stringByAppendingString: [self.fields objectAtIndex:i]];
 				stmt= [stmt stringByAppendingString: @"=?"];
@@ -141,8 +147,8 @@ NSString *db= @"your_database.sqlite";
 		}
 		else
 		{
-			NSLog(@"Inserting new %@ record", self.table_name);
-			stmt= [NSString stringWithFormat: @"insert into %@(", self.table_name];
+			NSLog(@"Inserting new %@ record", [[self class] get_table]);
+			stmt= [NSString stringWithFormat: @"insert into %@(", [[self class] get_table]];
 			for (int i=0; i < [self.fields count]; i++) 
 			{
 				stmt= [stmt stringByAppendingString: [self.fields objectAtIndex:i]];

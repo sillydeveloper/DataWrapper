@@ -26,17 +26,16 @@
 
 @interface DataWrapper : NSObject {
 	NSString *key;
-	NSString *table_name;
 	NSMutableArray *fields;
 }
 -(void) save;
 -(void) load:(NSString *)byid;
--(NSMutableArray*) find; // returns all
--(NSMutableArray*) find: (NSString*)field withValue:(NSString*)val;
--(NSMutableArray*) find: (NSString*)query;
++(NSMutableArray*) find; // returns all
++(NSMutableArray*) find: (NSString*)field withValue:(NSString*)val;
++(NSMutableArray*) find: (NSString*)query;
++(NSString *)get_table;
 
 @property (retain) NSString *key;
-@property (retain) NSString *table_name;
 @property (retain) NSMutableArray *fields;
 
 @end
